@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Notes</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #0f0f0f;
+      color: #f0f0f0;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #1a1a1a;
+      border-bottom: 1px solid #2a2a2a;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    header a {
+      color: #888;
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+
+    header a:hover {
+      color: #f0f0f0;
+    }
+
+    .page-wrapper {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+
+    .page-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+    }
+
+    .page-subtitle {
+      color: #666;
+      font-size: 0.95rem;
+      margin-bottom: 1.8rem;
+    }
+
+    /* Search Bar */
+    .search-wrapper {
+      position: relative;
+      margin-bottom: 1.8rem;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #555;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+    }
+
+    #searchInput {
+      width: 100%;
+      padding: 0.75rem 1rem 0.75rem 2.8rem;
+      background: #1a1a1a;
+      border: 1px solid #2e2e2e;
+      border-radius: 10px;
+      color: #f0f0f0;
+      font-size: 0.95rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    #searchInput::placeholder {
+      color: #555;
+    }
+
+    #searchInput:focus {
+      border-color: #555;
+      box-shadow: 0 0 0 3px rgba(255,255,255,0.05);
+    }
+
+    /* Notes List */
+    #notesList {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .note-card {
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 12px;
+      padding: 1.2rem 1.4rem;
+      transition: border-color 0.2s, transform 0.15s;
+    }
+
+    .note-card:hover {
+      border-color: #444;
+      transform: translateY(-1px);
+    }
+
+    .note-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.75rem;
+      font-size: 0.85rem;
+    }
+
+    .meta-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 500;
+    }
+
+    .badge-sender {
+      background: #1e3a2f;
+      color: #5cba8a;
+      border: 1px solid #2a5040;
+    }
+
+    .badge-receiver {
+      background: #1e2a3a;
+      color: #5a9cd6;
+      border: 1px solid #2a3d55;
+    }
+
+    .meta-arrow {
+      color: #444;
+      font-size: 0.8rem;
+    }
+
+    .note-date {
+      margin-left: auto;
+      color: #555;
+      font-size: 0.78rem;
+    }
+
+    .note-content {
+      color: #ccc;
+      font-size: 0.93rem;
+      line-height: 1.6;
+    }
+
+    .note-subject {
+      font-weight: 600;
+      color: #e8e8e8;
+      margin-bottom: 0.3rem;
+      font-size: 0.95rem;
+    }
+
+    /* Highlight matching text */
+    mark {
+      background: rgba(255, 220, 80, 0.25);
+      color: #ffd850;
+      border-radius: 3px;
+      padding: 0 2px;
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: #555;
+    }
+
+    .empty-state svg {
+      margin-bottom: 1rem;
+      opacity: 0.3;
+    }
+
+    .empty-state p {
+      font-size: 0.95rem;
+    }
+
+    /* Results count */
+    .results-count {
+      font-size: 0.82rem;
+      color: #555;
+      margin-bottom: 1rem;
+    }
+
+    .results-count span {
+      color: #888;
+    }
+
+    @media (max-width: 600px) {
+      .note-date {
+        width: 100%;
+        margin-left: 0;
+        margin-top: 0.3rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="index.html">← Home</a>
+  </header>
+
+  <div class="page-wrapper">
+    <div class="page-title">Notes</div>
+    <p class="page-subtitle">Mga mensahe at komunikasyon sa pagitan ng mga miyembro.</p>
+
+    <div class="search-wrapper">
+      <span class="search-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+      </span>
+      <input
+        type="text"
+        id="searchInput"
+        placeholder="Hanapin ang pangalan ng sender o receiver..."
+        autocomplete="off"
+      />
+    </div>
+
+    <div class="results-count" id="resultsCount"></div>
+
+    <div id="notesList"></div>
+  </div>
+
+  <script>
+    const notes = [
+      {
+        id: 1,
+        sender: "Juan Dela Cruz",
+        receiver: "Maria Santos",
+        subject: "Meeting Schedule",
+        content: "Gusto kong ipaalam na ang pulong natin ay itinakda sa Biyernes ng hapon, alas-tres. Pakisiguruhing nandoon ka.",
+        date: "2026-05-14"
+      },
+      {
+        id: 2,
+        sender: "Maria Santos",
+        receiver: "Pedro Reyes",
+        subject: "Project Update",
+        content: "Nai-submit na ang report para sa ika-dalawang quarter. Abangan ang feedback mula sa management bago mag-weekend.",
+        date: "2026-05-13"
+      },
+      {
+        id: 3,
+        sender: "Pedro Reyes",
+        receiver: "Juan Dela Cruz",
+        subject: "Document Request",
+        content: "Kailangan ko ng kopya ng clearance certificate mo para sa upcoming audit. Paki-email sa akin ngayong araw.",
+        date: "2026-05-12"
+      },
+      {
+        id: 4,
+        sender: "Admin User",
+        receiver: "Maria Santos",
+        subject: "System Maintenance",
+        content: "Abisuhang magsasagawa ng scheduled maintenance sa Linggo ng gabi mula 10PM hanggang 2AM. Maaaring hindi available ang sistema sa panahon ng maintenance.",
+        date: "2026-05-11"
+      },
+      {
+        id: 5,
+        sender: "Maria Santos",
+        receiver: "Admin User",
+        subject: "Attendance Report",
+        content: "Narito ang attendance report para sa buwan ng Abril. Pakitingnan ang mga naka-mark na absences at ipaalam sa akin kung may kailangan pang baguhin.",
+        date: "2026-05-10"
+      },
+      {
+        id: 6,
+        sender: "Pedro Reyes",
+        receiver: "Maria Santos",
+        subject: "Budget Approval",
+        content: "Ang budget proposal para sa Q3 ay naaprobahan na ng board. Maaari na nating simulan ang procurement process sa susunod na linggo.",
+        date: "2026-05-09"
+      },
+      {
+        id: 7,
+        sender: "Juan Dela Cruz",
+        receiver: "Admin User",
+        subject: "Leave Application",
+        content: "Nag-aapply ako ng leave mula May 20 hanggang May 22 para sa personal na dahilan. Umaasa ako na maaprobahan ninyo ito. Salamat.",
+        date: "2026-05-08"
+      },
+      {
+        id: 8,
+        sender: "Admin User",
+        receiver: "Pedro Reyes",
+        subject: "Policy Reminder",
+        content: "Paalala lang na ang bagong patakaran sa work-from-home ay magsisimula na sa Hunyo 1. Pakibasa ang pinakabagong memo na naka-post sa bulletin board.",
+        date: "2026-05-07"
+      }
+    ];
+
+    function escapeHtml(text) {
+      return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function highlight(text, query) {
+      if (!query) return escapeHtml(text);
+      const escaped = escapeHtml(text);
+      const safeQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      return escaped.replace(new RegExp(`(${safeQuery})`, 'gi'), '<mark>$1</mark>');
+    }
+
+    function formatDate(dateStr) {
+      const d = new Date(dateStr);
+      return d.toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    function renderNotes(filtered, query) {
+      const list = document.getElementById('notesList');
+      const countEl = document.getElementById('resultsCount');
+
+      if (filtered.length === 0) {
+        list.innerHTML = `
+          <div class="empty-state">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
+            </svg>
+            <p>Walang nahanap na note para sa "<strong>${escapeHtml(query)}</strong>"</p>
+          </div>`;
+        countEl.innerHTML = '';
+        return;
+      }
+
+      if (query) {
+        countEl.innerHTML = `<span>${filtered.length}</span> resulta para sa "<span>${escapeHtml(query)}</span>"`;
+      } else {
+        countEl.innerHTML = `<span>${filtered.length}</span> notes`;
+      }
+
+      list.innerHTML = filtered.map(note => `
+        <div class="note-card">
+          <div class="note-meta">
+            <span class="meta-badge badge-sender">
+              <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+              ${highlight(note.sender, query)}
+            </span>
+            <span class="meta-arrow">→</span>
+            <span class="meta-badge badge-receiver">
+              <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <circle cx="12" cy="8" r="4"/><path stroke-linecap="round" d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+              </svg>
+              ${highlight(note.receiver, query)}
+            </span>
+            <span class="note-date">${formatDate(note.date)}</span>
+          </div>
+          <div class="note-subject">${escapeHtml(note.subject)}</div>
+          <div class="note-content">${escapeHtml(note.content)}</div>
+        </div>
+      `).join('');
+    }
+
+    function filterAndRender(query) {
+      const q = query.trim().toLowerCase();
+      const filtered = q
+        ? notes.filter(n =>
+            n.sender.toLowerCase().includes(q) ||
+            n.receiver.toLowerCase().includes(q)
+          )
+        : notes;
+      renderNotes(filtered, q);
+    }
+
+    document.getElementById('searchInput').addEventListener('input', function () {
+      filterAndRender(this.value);
+    });
+
+    // Initial render
+    filterAndRender('');
+  </script>
+
+</body>
+</html>
